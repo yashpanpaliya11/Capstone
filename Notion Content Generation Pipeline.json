@@ -1,0 +1,471 @@
+{
+  "name": "Notion Content Generation Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json['Content Status'] }}",
+              "rightValue": "Draft",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "305abd7b-1536-4436-8cac-e91347d6aac0"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bcffda20-b083-4cdb-be71-b7a74e0f0c81",
+      "name": "Check Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        304,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst p = item.properties || item;\n\nfunction getText(v) {\n  if (!v) return \"\";\n  if (typeof v === \"string\") return v;\n  if (typeof v === \"number\") return String(v);\n\n  if (v.title) return v.title.map(x => x.plain_text || \"\").join(\"\");\n  if (v.rich_text) return v.rich_text.map(x => x.plain_text || \"\").join(\"\");\n  if (v.select) return v.select.name || \"\";\n  if (v.number !== undefined && v.number !== null) return String(v.number);\n\n  if (Array.isArray(v)) {\n    return v.map(x => {\n      if (typeof x === \"string\") return x;\n      if (x?.name) return x.name;\n      if (x?.plain_text) return x.plain_text;\n      return \"\";\n    }).filter(Boolean).join(\", \");\n  }\n\n  if (v.multi_select && Array.isArray(v.multi_select)) {\n    return v.multi_select.map(x => x.name || \"\").filter(Boolean).join(\", \");\n  }\n\n  return \"\";\n}\n\nreturn [{\n  json: {\n    notion_page_id: item.id || \"\",\n    brief_id: getText(p[\"Brief ID\"]),\n    name: getText(p[\"Name\"]),\n    week: getText(p[\"Week\"]),\n    campaign_name: getText(p[\"Campaign Name\"]),\n    audience: getText(p[\"Audience\"]),\n    goal: getText(p[\"Goal\"]),\n    offer_cta: getText(p[\"Offer / CTA\"]),\n    tone: getText(p[\"Tone\"]),\n    keywords: getText(p[\"Keywords\"]),\n    blog_topic: getText(p[\"Blog Topic\"]),\n    social_platforms: getText(p[\"Social Platforms\"]),\n    raw_brief: getText(p[\"Raw Brief\"]),\n    content_status: getText(p[\"Content Status\"])\n  }\n}];"
+      },
+      "id": "f4c5f3d1-4853-4a1e-b263-901c326aa375",
+      "name": "Prepare Brief Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content strategist and copywriter for a no-code AI automation business.\n\nCreate marketing content based on this brief and return valid JSON only.\n\nBrief details:\nBrief ID: {{$json.brief_id}}\nName: {{$json.name}}\nWeek: {{$json.week}}\nCampaign Name: {{$json.campaign_name}}\nAudience: {{$json.audience}}\nGoal: {{$json.goal}}\nOffer / CTA: {{$json.offer_cta}}\nTone: {{$json.tone}}\nKeywords: {{$json.keywords}}\nBlog Topic: {{$json.blog_topic}}\nSocial Platforms: {{$json.social_platforms}}\nRaw Brief: {{$json.raw_brief}}\n\nInstructions:\n1. Write one strong blog draft.\n2. Write one LinkedIn caption.\n3. Write one Instagram caption.\n4. Write one Twitter caption.\n5. Write one newsletter draft.\n6. Write one Canva visual prompt.\n7. Keep all outputs aligned with the brief.\n8. Use the CTA naturally.\n9. Keep the writing professional and marketing-ready.\n10. Return JSON only.\n\nReturn JSON in this exact format:\n{\n  \"blog_draft\": \"\",\n  \"linkedin_caption\": \"\",\n  \"instagram_caption\": \"\",\n  \"twitter_caption\": \"\",\n  \"newsletter_draft\": \"\",\n  \"visual_prompt\": \"\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "9b205120-69b6-4b75-aabb-fe5eb416bbf5",
+      "name": "Generate Content",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        752,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "id": "bab46c25-e28f-49eb-8aaa-bfae4a7d74a5",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        760,
+        320
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "dX4JQZ50sStV99qx",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"blog_draft\": { \"type\": \"string\" },\n    \"linkedin_caption\": { \"type\": \"string\" },\n    \"instagram_caption\": { \"type\": \"string\" },\n    \"twitter_caption\": { \"type\": \"string\" },\n    \"newsletter_draft\": { \"type\": \"string\" },\n    \"visual_prompt\": { \"type\": \"string\" }\n  },\n  \"required\": [\n    \"blog_draft\",\n    \"linkedin_caption\",\n    \"instagram_caption\",\n    \"twitter_caption\",\n    \"newsletter_draft\",\n    \"visual_prompt\"\n  ]\n}"
+      },
+      "id": "bcf53ce4-9242-4f39-944f-25a16dc9759c",
+      "name": "Parse Content Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        888,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const brief = $('Prepare Brief Data').first().json;\nconst out = $json.output || $json || {};\n\nfunction asText(v) {\n  if (v === null || v === undefined) return \"\";\n  if (typeof v === \"string\") return v;\n  if (typeof v === \"number\") return String(v);\n  if (typeof v === \"boolean\") return v ? \"true\" : \"false\";\n  if (Array.isArray(v)) return v.map(asText).filter(Boolean).join(\", \");\n  if (typeof v === \"object\") return JSON.stringify(v);\n  return \"\";\n}\n\nconst briefIdText = asText(brief.brief_id).trim();\nconst briefIdNumber = briefIdText && !isNaN(Number(briefIdText)) ? Number(briefIdText) : 0;\n\nreturn [{\n  json: {\n    notion_page_id: asText(brief.notion_page_id),\n    source_brief_id: briefIdText,\n    content_id: briefIdNumber,\n    content_name: `Generated Content ${briefIdText || \"Untitled\"}`,\n    brief_name: asText(brief.name),\n    campaign_name: asText(brief.campaign_name),\n    week: asText(brief.week),\n    audience: asText(brief.audience),\n    goal: asText(brief.goal),\n    offer_cta: asText(brief.offer_cta),\n    tone: asText(brief.tone),\n    keywords: asText(brief.keywords),\n    blog_topic: asText(brief.blog_topic),\n    social_platforms: asText(brief.social_platforms),\n    raw_brief: asText(brief.raw_brief),\n    blog_draft: asText(out.blog_draft),\n    linkedin_caption: asText(out.linkedin_caption),\n    instagram_caption: asText(out.instagram_caption),\n    twitter_caption: asText(out.twitter_caption),\n    newsletter_draft: asText(out.newsletter_draft),\n    visual_prompt: asText(out.visual_prompt)\n  }\n}];"
+      },
+      "id": "c977fcd8-3c79-4d35-9a28-10cb958f1ecc",
+      "name": "Prepare Generated Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Prepare Brief Data').first().json.notion_page_id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Content Status|select",
+              "selectValue": "Draft"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2224,
+        96
+      ],
+      "id": "f7e7568a-5a46-42cf-858f-5a3bed7abf05",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "pZvxvO5FHOJQEtYI",
+          "name": "Notion account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "34b3b819-7dee-806e-b2e8-d944a0a625f0",
+          "mode": "list",
+          "cachedResultName": "Generated Content",
+          "cachedResultUrl": "https://www.notion.so/34b3b8197dee806eb2e8d944a0a625f0"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Name|title",
+              "title": "={{ $('Prepare Generated Content').item.json.content_name }}"
+            },
+            {
+              "key": "Content ID|number",
+              "numberValue": "={{ $('Prepare Generated Content').item.json.content_id }}"
+            },
+            {
+              "key": "Blog Draft|rich_text",
+              "textContent": "={{ $('Prepare Generated Content').item.json.blog_draft }}"
+            },
+            {
+              "key": "Source Brief ID|rich_text",
+              "textContent": "={{ $('Prepare Generated Content').item.json.source_brief_id }}"
+            },
+            {
+              "key": "LinkedIn Caption|rich_text",
+              "textContent": "={{ $('Prepare Generated Content').item.json.linkedin_caption }}"
+            },
+            {
+              "key": "Instagram Caption|rich_text",
+              "textContent": "={{ $('Prepare Generated Content').item.json.instagram_caption }}"
+            },
+            {
+              "key": "Newsletter Draft|rich_text",
+              "textContent": "={{ $('Prepare Generated Content').item.json.newsletter_draft }}"
+            },
+            {
+              "key": "Visual Prompt|rich_text",
+              "textContent": "={{ $('Prepare Generated Content').item.json.visual_prompt }}"
+            },
+            {
+              "key": "Twitter Caption|rich_text",
+              "textContent": "={{ $('Prepare Generated Content').item.json.twitter_caption }}"
+            },
+            {
+              "key": "Approval Status|select",
+              "selectValue": "Draft"
+            },
+            {
+              "key": "Publish Status|select",
+              "selectValue": "Not Started"
+            },
+            {
+              "key": "Generated Image URL|url",
+              "urlValue": "={{ $json.data[0].url }}"
+            },
+            {
+              "key": "Reviewer Email Sent|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        96
+      ],
+      "id": "ee2d37f9-0ab4-4ac7-b17d-eb80aabacf6d",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "pZvxvO5FHOJQEtYI",
+          "name": "Notion account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://genai-api.picsart.io/v1/text2image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Picsart-API-Key",
+              "value": "=paat-8pO3OoOZz00hGnSIFbsrtzG1SVi"
+            },
+            {
+              "name": "Content-Type ",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.visual_prompt }}\",\n  \"width\": 1024,\n  \"height\": 1024,\n  \"steps\": 30\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1328,
+        96
+      ],
+      "id": "2d95f71c-84b2-440d-8b20-897d6da5e5c4",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 25
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        96
+      ],
+      "id": "70592dd7-a5ce-40b6-ab78-a6299e2e8268",
+      "name": "Wait",
+      "webhookId": "6cc4e5dd-bbca-4c09-84c8-5daa1a8565f8"
+    },
+    {
+      "parameters": {
+        "url": "=https://genai-api.picsart.io/v1/text2image/inferences/{{$json[\"inference_id\"]}}\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Picsart-API-Key ",
+              "value": "paat-8pO3OoOZz00hGnSIFbsrtzG1SVi"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1776,
+        96
+      ],
+      "id": "5edb1fb9-ae1f-4d6c-8dd3-92c4d2d7fb95",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "databaseId": {
+          "__rl": true,
+          "value": "34b3b819-7dee-808a-bb35-d85a81b2a435",
+          "mode": "list",
+          "cachedResultName": "Content Briefs",
+          "cachedResultUrl": "https://www.notion.so/34b3b8197dee808abb35d85a81b2a435"
+        }
+      },
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1,
+      "position": [
+        80,
+        96
+      ],
+      "id": "312d2542-e22f-4e46-ac35-61bfeceaed2d",
+      "name": "Notion Trigger",
+      "credentials": {
+        "notionApi": {
+          "id": "pZvxvO5FHOJQEtYI",
+          "name": "Notion account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check Status": {
+      "main": [
+        [
+          {
+            "node": "Prepare Brief Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Brief Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Content": {
+      "main": [
+        [
+          {
+            "node": "Prepare Generated Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Content Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Content",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Generated Content": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3fc14818-4259-4b91-a955-a43af79f8262",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f6957d0ca0d46be1832788f97ea822ab08dd023097e19ee6e4d77687d304ab45"
+  },
+  "id": "ZN75AaKq5Vk8PyO2",
+  "tags": []
+}

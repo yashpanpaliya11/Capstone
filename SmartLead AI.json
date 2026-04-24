@@ -1,0 +1,2408 @@
+{
+  "name": "SmartLead AI",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "=everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "value": "appZvaRMElulxmQbm",
+          "mode": "id"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "tblCzDc8JnCCiXty0",
+          "mode": "id"
+        },
+        "triggerField": "Submission Date",
+        "additionalFields": {}
+      },
+      "id": "688627f7-c824-44bc-9ad0-bd744b3aff39",
+      "name": "Airtable Trigger",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -112
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "CTE9bgkXlF4JMPVy",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const f = $json.fields || {};\n\nreturn [{\n  json: {\n    recordId: $json.id,\n    full_name: f[\"Full Name\"] || \"\",\n    email: f[\"Email\"] || \"\",\n    phone: f[\"Phone\"] || \"\",\n    company: f[\"Company\"] || \"\",\n    preferred_contact_method: f[\"Preferred Contact Method\"] || \"\",\n    inquiry_type: f[\"Inquiry Type\"] || \"\",\n    budget_range: f[\"Budget Range\"] || \"\",\n    urgency_selected: f[\"Urgency Selected\"] || \"\",\n    existing_customer: f[\"Existing Customer\"] || \"\",\n    team_size: f[\"Team Size\"] || \"\",\n    start_timeline: f[\"Start Timeline\"] || \"\",\n    partnership_type: f[\"Partnership Type\"] || \"\",\n    issue_type: f[\"Issue Type\"] || \"\",\n    demo_details: f[\"Demo Details\"] || \"\",\n    current_tool_or_workflow: f[\"Current Tool or Workflow\"] || \"\",\n    biggest_pain_point: f[\"Biggest Pain Point\"] || \"\",\n    preferred_demo_date_or_time: f[\"Preferred Demo Date or Time\"] || \"\",\n    pricing_details: f[\"Pricing Details\"] || \"\",\n    brand_audience_company_details: f[\"Brand / Audience / Company Details\"] || \"\",\n    partnership_goal: f[\"Partnership Goal\"] || \"\",\n    partnership_timeline: f[\"Partnership Timeline\"] || \"\",\n    relevant_link: f[\"Relevant Link\"] || \"\",\n    support_issue_description: f[\"Support Issue Description\"] || \"\",\n    fastest_reach_method: f[\"Fastest Reach Method\"] || \"\",\n    project_description: f[\"Project Description\"] || \"\",\n    features_or_outcome_needed: f[\"Features or Outcome Needed\"] || \"\",\n    expected_project_timeline: f[\"Expected Project Timeline\"] || \"\",\n    reference_links_or_examples: f[\"Reference Links or Examples\"] || \"\",\n    anything_else: f[\"Anything Else We Should Know\"] || \"\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -112
+      ],
+      "id": "e8612277-e246-4a96-a3b0-30725d7eaab7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI sales assistant for a no-code AI automation service.\n\nAnalyze the lead data and return valid JSON only. Do not return markdown. Do not add explanations outside JSON.\n\nLead details:\nFull Name: {{$json.full_name}}\nEmail: {{$json.email}}\nPhone: {{$json.phone}}\nCompany: {{$json.company}}\nPreferred Contact Method: {{$json.preferred_contact_method}}\nInquiry Type: {{$json.inquiry_type}}\nBudget Range: {{$json.budget_range}}\nUrgency Selected: {{$json.urgency_selected}}\nExisting Customer: {{$json.existing_customer}}\nTeam Size: {{$json.team_size}}\nStart Timeline: {{$json.start_timeline}}\nPartnership Type: {{$json.partnership_type}}\nIssue Type: {{$json.issue_type}}\nDemo Details: {{$json.demo_details}}\nCurrent Tool or Workflow: {{$json.current_tool_or_workflow}}\nBiggest Pain Point: {{$json.biggest_pain_point}}\nPreferred Demo Date or Time: {{$json.preferred_demo_date_or_time}}\nPricing Details: {{$json.pricing_details}}\nBrand / Audience / Company Details: {{$json.brand_audience_company_details}}\nPartnership Goal: {{$json.partnership_goal}}\nPartnership Timeline: {{$json.partnership_timeline}}\nRelevant Link: {{$json.relevant_link}}\nSupport Issue Description: {{$json.support_issue_description}}\nFastest Reach Method: {{$json.fastest_reach_method}}\nProject Description: {{$json.project_description}}\nFeatures or Outcome Needed: {{$json.features_or_outcome_needed}}\nExpected Project Timeline: {{$json.expected_project_timeline}}\nReference Links or Examples: {{$json.reference_links_or_examples}}\nAnything Else We Should Know: {{$json.anything_else}}\n\nYour job:\n1. Understand the lead deeply.\n2. Fill all CRM-ready fields as well as a customer-ready reply.\n3. Use only the information provided. Do not invent facts.\n4. If a detail is missing, keep it as an empty string instead of making something up.\n5. Keep all outputs professional, useful, and action-oriented.\n\nCreate these outputs:\n\n1. ai_summary\n- 2 to 4 sentences\n- concise but specific\n- explain who the lead is, what they want, and the main need\n\n2. ai_intent\n- one short clear intent label\n- examples: Demo Request, Pricing Inquiry, Partnership, Support, Custom Project\n\n3. ai_urgency\n- must be exactly one of: High, Medium, Low\n- judge from urgency words, timeline, issue severity, and business need\n\n4. ai_keywords\n- comma-separated keywords\n- include the most important business, pain point, requirement, or use-case terms\n\n5. lead_score\n- integer from 1 to 100\n- score higher if the lead looks serious, specific, urgent, budget-aware, ready to act, or commercially valuable\n\n6. priority\n- must be exactly one of: High, Medium, Low\n- use lead_score to guide this:\n  - 80 to 100 = High\n  - 50 to 79 = Medium\n  - 1 to 49 = Low\n\n7. suggested_reply\n- internal-use reply draft\n- plain text\n- professional and specific\n- should help the team quickly respond\n- mention useful details from the lead when available\n\n8. next_action\n- one practical next step for the team\n- examples: Schedule demo, Send pricing details, Request clarification, Escalate support case, Review partnership fit\n\n9. message\n- a clean CRM summary in plain text\n- combine the most important details from the form\n- should read like a complete lead note\n- include only fields that actually have values\n- make it useful for Airtable and CRM viewing\n\n10. customer_reply_subject\n- subject line for customer email\n- natural, professional, and relevant to the inquiry type\n\n11. customer_reply_html\n- must be full clean HTML email body\n- professional, warm, and specific\n- directly address the customer by name when available\n- mention the actual inquiry type\n- include relevant details only if they exist\n- for example include budget, team size, expected timeline, partnership type, support issue, preferred demo time, project needs, etc when relevant\n- do not mention AI, lead score, internal analysis, or CRM\n- do not mention missing fields\n- do not include fake promises\n- include a clear next step\n- include a polite closing from SmartLead AI Team\n- include this sentence near the end only if it fits naturally:\n  \"You can also review progress through our shared dashboard link when provided.\"\n- output valid HTML as a JSON string value\n\nQuality rules:\n- Be specific, not generic.\n- Do not repeat the same sentence in multiple fields.\n- Keep tone business-professional.\n- For support inquiries, focus on reassurance and quick resolution.\n- For pricing inquiries, focus on fit, scope, and next-step discussion.\n- For demo requests, focus on scheduling and what they want to see.\n- For partnership inquiries, focus on alignment, goals, and timeline.\n- For custom projects, focus on scope, outcomes, timeline, and budget.\n- If the lead provided a preferred contact method, reflect that naturally in the customer reply when helpful.\n- If the lead provided a timeline or urgency, reflect it naturally in the reply.\n- If the lead provided a budget, mention it carefully and professionally when relevant.\n\nReturn JSON in exactly this structure:\n{\n  \"ai_summary\": \"\",\n  \"ai_intent\": \"\",\n  \"ai_urgency\": \"High or Medium or Low\",\n  \"ai_keywords\": \"\",\n  \"lead_score\": 0,\n  \"priority\": \"High or Medium or Low\",\n  \"suggested_reply\": \"\",\n  \"next_action\": \"\",\n  \"message\": \"\",\n  \"customer_reply_subject\": \"\",\n  \"customer_reply_html\": \"\"\n}\n}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        752,
+        -112
+      ],
+      "id": "29993490-0b1d-4c30-b99b-79c4ff987e56",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        720,
+        144
+      ],
+      "id": "7dfd9c6a-7d18-476f-9212-3bb73ecc0e31",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "WXHa9SuAsXJA7dkb",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = $json.output || $json || {};\n\nreturn [{\n  json: {\n    recordId: $('Code in JavaScript').first().json.recordId || \"\",\n    email: $('Code in JavaScript').first().json.email || \"\",\n    full_name: $('Code in JavaScript').first().json.full_name || \"\",\n    ai_summary: out.ai_summary || \"\",\n    ai_intent: out.ai_intent || \"\",\n    ai_urgency: out.ai_urgency || \"\",\n    ai_keywords: out.ai_keywords || \"\",\n    lead_score: Number(out.lead_score || 0),\n    priority: out.priority || \"\",\n    suggested_reply: out.suggested_reply || \"\",\n    next_action: out.next_action || \"\",\n    message: out.message || \"\",\n    customer_reply_subject: out.customer_reply_subject || \"\",\n    customer_reply_html: out.customer_reply_html || \"\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        -96
+      ],
+      "id": "5d1799fe-f5f8-47a1-8ed1-7429f7992f58",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ai_summary\": {\n      \"type\": \"string\"\n    },\n    \"ai_intent\": {\n      \"type\": \"string\"\n    },\n    \"ai_urgency\": {\n      \"type\": \"string\",\n      \"enum\": [\"High\", \"Medium\", \"Low\"]\n    },\n    \"ai_keywords\": {\n      \"type\": \"string\"\n    },\n    \"lead_score\": {\n      \"type\": \"number\"\n    },\n    \"priority\": {\n      \"type\": \"string\",\n      \"enum\": [\"High\", \"Medium\", \"Low\"]\n    },\n    \"suggested_reply\": {\n      \"type\": \"string\"\n    },\n    \"next_action\": {\n      \"type\": \"string\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    },\n    \"customer_reply_subject\": {\n      \"type\": \"string\"\n    },\n    \"customer_reply_html\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"ai_summary\",\n    \"ai_intent\",\n    \"ai_urgency\",\n    \"ai_keywords\",\n    \"lead_score\",\n    \"priority\",\n    \"suggested_reply\",\n    \"next_action\",\n    \"message\",\n    \"customer_reply_subject\",\n    \"customer_reply_html\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        96
+      ],
+      "id": "99c3a827-9b99-4821-9183-b839ed6359ae",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appZvaRMElulxmQbm",
+          "mode": "list",
+          "cachedResultName": "SMARTLEAD",
+          "cachedResultUrl": "https://airtable.com/appZvaRMElulxmQbm"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCzDc8JnCCiXty0",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appZvaRMElulxmQbm/tblCzDc8JnCCiXty0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Notified Team": false,
+            "Lead Score": "={{ $json.lead_score }}",
+            "AI Summary": "={{ $json.ai_summary }}",
+            "AI Intent": "={{ $json.ai_intent }}",
+            "AI Urgency": "={{ $json.ai_urgency }}",
+            "AI Keywords": "={{ $json.ai_keywords }}",
+            "Priority": "High",
+            "Suggested Reply": "={{ $json.suggested_reply }}",
+            "Next Action": "={{ $json.next_action }}",
+            "Lead Stage": "AI Reviewed",
+            "id": "={{ $json.recordId }}",
+            "Email Draft Status": "Sent",
+            "Customer Reply Subject": "={{ $json.customer_reply_subject }}",
+            "Customer Reply Draft": "={{ $json.customer_reply_html }}",
+            "Message": "={{ $('Code in JavaScript1').item.json.message }}",
+            "Customer Visible Update": "Your request has been reviewed and our team is moving forward with the next discussion steps.",
+            "Customer Status": "In Discussion ",
+            "Tracking ID": "={{$json.tracking_id}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Lead ID",
+              "displayName": "Lead ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Preferred Contact Method",
+              "displayName": "Preferred Contact Method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "Phone",
+                  "value": "Phone"
+                },
+                {
+                  "name": "LinkedIn",
+                  "value": "LinkedIn"
+                },
+                {
+                  "name": "WhatsApp",
+                  "value": "WhatsApp"
+                },
+                {
+                  "name": "Partnership",
+                  "value": "Partnership"
+                },
+                {
+                  "name": "Pricing Inquiry",
+                  "value": "Pricing Inquiry"
+                },
+                {
+                  "name": "Support",
+                  "value": "Support"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Inquiry Type",
+              "displayName": "Inquiry Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Demo Request",
+                  "value": "Demo Request"
+                },
+                {
+                  "name": "Pricing Inquiry",
+                  "value": "Pricing Inquiry"
+                },
+                {
+                  "name": "Partnership",
+                  "value": "Partnership"
+                },
+                {
+                  "name": "Support",
+                  "value": "Support"
+                },
+                {
+                  "name": "Custom Project",
+                  "value": "Custom Project"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget Range",
+              "displayName": "Budget Range",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Below $500",
+                  "value": "Below $500"
+                },
+                {
+                  "name": "$500-$1,000",
+                  "value": "$500-$1,000"
+                },
+                {
+                  "name": "$1,000-$2,000",
+                  "value": "$1,000-$2,000"
+                },
+                {
+                  "name": "$2,000-$5,000",
+                  "value": "$2,000-$5,000"
+                },
+                {
+                  "name": "$5,000+",
+                  "value": "$5,000+"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgency Selected",
+              "displayName": "Urgency Selected",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Existing Customer",
+              "displayName": "Existing Customer",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Yes",
+                  "value": "Yes"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Team Size",
+              "displayName": "Team Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Just me",
+                  "value": "Just me"
+                },
+                {
+                  "name": "2-5",
+                  "value": "2-5"
+                },
+                {
+                  "name": "6-20",
+                  "value": "6-20"
+                },
+                {
+                  "name": "21-50",
+                  "value": "21-50"
+                },
+                {
+                  "name": "50+",
+                  "value": "50+"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Timeline",
+              "displayName": "Start Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Immediately",
+                  "value": "Immediately"
+                },
+                {
+                  "name": "This month",
+                  "value": "This month"
+                },
+                {
+                  "name": "In 1-3 months",
+                  "value": "In 1-3 months"
+                },
+                {
+                  "name": "Just researching",
+                  "value": "Just researching"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Partnership Type",
+              "displayName": "Partnership Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Co-marketing",
+                  "value": "Co-marketing"
+                },
+                {
+                  "name": "Affiliate",
+                  "value": "Affiliate"
+                },
+                {
+                  "name": "Sponsorship",
+                  "value": "Sponsorship"
+                },
+                {
+                  "name": "Integration",
+                  "value": "Integration"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Issue Type",
+              "displayName": "Issue Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Billing",
+                  "value": "Billing"
+                },
+                {
+                  "name": "Technical issue",
+                  "value": "Technical issue"
+                },
+                {
+                  "name": "Account access",
+                  "value": "Account access"
+                },
+                {
+                  "name": "Feature request",
+                  "value": "Feature request"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Demo Details",
+              "displayName": "Demo Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Current Tool or Workflow",
+              "displayName": "Current Tool or Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Biggest Pain Point",
+              "displayName": "Biggest Pain Point",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Preferred Demo Date or Time",
+              "displayName": "Preferred Demo Date or Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Pricing Details",
+              "displayName": "Pricing Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Brand / Audience / Company Details",
+              "displayName": "Brand / Audience / Company Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Partnership Goal",
+              "displayName": "Partnership Goal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Partnership Timeline",
+              "displayName": "Partnership Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Relevant Link",
+              "displayName": "Relevant Link",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Support Issue Description",
+              "displayName": "Support Issue Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fastest Reach Method",
+              "displayName": "Fastest Reach Method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Description",
+              "displayName": "Project Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Features or Outcome Needed",
+              "displayName": "Features or Outcome Needed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Expected Project Timeline",
+              "displayName": "Expected Project Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reference Links or Examples",
+              "displayName": "Reference Links or Examples",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Anything Else We Should Know",
+              "displayName": "Anything Else We Should Know",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Submission Date",
+              "displayName": "Submission Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Intent",
+              "displayName": "AI Intent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Urgency",
+              "displayName": "AI Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Keywords",
+              "displayName": "AI Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Suggested Reply",
+              "displayName": "Suggested Reply",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Next Action",
+              "displayName": "Next Action",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email Draft Status",
+              "displayName": "Email Draft Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Not Started",
+                  "value": "Not Started"
+                },
+                {
+                  "name": "Drafted",
+                  "value": "Drafted"
+                },
+                {
+                  "name": "Approved",
+                  "value": "Approved"
+                },
+                {
+                  "name": "Sent",
+                  "value": "Sent"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned To",
+              "displayName": "Assigned To",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Date",
+              "displayName": "Follow-up Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Stage",
+              "displayName": "Lead Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "AI Reviewed",
+                  "value": "AI Reviewed"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Closed Won",
+                  "value": "Closed Won"
+                },
+                {
+                  "name": "Closed Lost",
+                  "value": "Closed Lost"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notified Team",
+              "displayName": "Notified Team",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Activity",
+              "displayName": "Last Activity",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Notes",
+              "displayName": "Lead Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Outbound Channel",
+              "displayName": "Outbound Channel",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "Phone",
+                  "value": "Phone"
+                },
+                {
+                  "name": "LinkedIn",
+                  "value": "LinkedIn"
+                },
+                {
+                  "name": "WhatsApp",
+                  "value": "WhatsApp"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Typeform",
+                  "value": "Typeform"
+                },
+                {
+                  "name": "Web",
+                  "value": "Web"
+                },
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "LinkedIn",
+                  "value": "LinkedIn"
+                },
+                {
+                  "name": "Phone",
+                  "value": "Phone"
+                },
+                {
+                  "name": "Manual",
+                  "value": "Manual"
+                },
+                {
+                  "name": "Event",
+                  "value": "Event"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Reply Draft",
+              "displayName": "Customer Reply Draft",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Reply Subject",
+              "displayName": "Customer Reply Subject",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Portal Link",
+              "displayName": "Customer Portal Link",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tracking ID",
+              "displayName": "Tracking ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Status",
+              "displayName": "Customer Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Received Under Review In Discussion Proposal Sent In Progress Completed Closed",
+                  "value": "Received Under Review In Discussion Proposal Sent In Progress Completed Closed"
+                },
+                {
+                  "name": "Under Review",
+                  "value": "Under Review"
+                },
+                {
+                  "name": "In Discussion ",
+                  "value": "In Discussion "
+                },
+                {
+                  "name": "Proposal  Sent ",
+                  "value": "Proposal  Sent "
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed ",
+                  "value": "Completed "
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Visible Update",
+              "displayName": "Customer Visible Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Shared Update",
+              "displayName": "Last Shared Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1552,
+        -208
+      ],
+      "id": "ac4d1a80-3e3b-48ce-8c79-aa6a4688d2e8",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "l1hQKQF6WdLmWpvS",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a27235f7-9b6e-49b1-a9a4-1e500d847f63",
+              "leftValue": "={{ $json.lead_score }}",
+              "rightValue": 60,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1280,
+        -96
+      ],
+      "id": "9707c011-12ba-4768-9026-319c903b06c9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appZvaRMElulxmQbm",
+          "mode": "list",
+          "cachedResultName": "SMARTLEAD",
+          "cachedResultUrl": "https://airtable.com/appZvaRMElulxmQbm"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCzDc8JnCCiXty0",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Notified Team": false,
+            "Lead Score": "={{ $json.lead_score }}",
+            "AI Summary": "={{ $json.ai_summary }}",
+            "AI Intent": "={{ $json.ai_intent }}",
+            "AI Urgency": "={{ $json.ai_urgency }}",
+            "AI Keywords": "={{ $json.ai_keywords }}",
+            "Priority": "={{ $json.priority }}",
+            "Suggested Reply": "={{ $json.suggested_reply }}",
+            "Next Action": "={{ $json.next_action }}",
+            "Lead Stage": "AI Reviewed",
+            "id": "={{ $json.recordId }}",
+            "Message": "={{ $('Code in JavaScript1').item.json.message }}",
+            "Email Draft Status": "Sent",
+            "Customer Reply Subject": "={{ $('Code in JavaScript1').item.json.customer_reply_subject }}",
+            "Customer Reply Draft": "={{ $('Code in JavaScript1').item.json.customer_reply_html }}",
+            "Tracking ID": "={{$json.tracking_id}}",
+            "Customer Visible Update": "We have received your inquiry and our team is reviewing it.",
+            "Customer Status": "Under Review"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Lead ID",
+              "displayName": "Lead ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Preferred Contact Method",
+              "displayName": "Preferred Contact Method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "Phone",
+                  "value": "Phone"
+                },
+                {
+                  "name": "LinkedIn",
+                  "value": "LinkedIn"
+                },
+                {
+                  "name": "WhatsApp",
+                  "value": "WhatsApp"
+                },
+                {
+                  "name": "Partnership",
+                  "value": "Partnership"
+                },
+                {
+                  "name": "Pricing Inquiry",
+                  "value": "Pricing Inquiry"
+                },
+                {
+                  "name": "Support",
+                  "value": "Support"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Inquiry Type",
+              "displayName": "Inquiry Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Demo Request",
+                  "value": "Demo Request"
+                },
+                {
+                  "name": "Pricing Inquiry",
+                  "value": "Pricing Inquiry"
+                },
+                {
+                  "name": "Partnership",
+                  "value": "Partnership"
+                },
+                {
+                  "name": "Support",
+                  "value": "Support"
+                },
+                {
+                  "name": "Custom Project",
+                  "value": "Custom Project"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget Range",
+              "displayName": "Budget Range",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Below $500",
+                  "value": "Below $500"
+                },
+                {
+                  "name": "$500-$1,000",
+                  "value": "$500-$1,000"
+                },
+                {
+                  "name": "$1,000-$2,000",
+                  "value": "$1,000-$2,000"
+                },
+                {
+                  "name": "$2,000-$5,000",
+                  "value": "$2,000-$5,000"
+                },
+                {
+                  "name": "$5,000+",
+                  "value": "$5,000+"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgency Selected",
+              "displayName": "Urgency Selected",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Existing Customer",
+              "displayName": "Existing Customer",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Yes",
+                  "value": "Yes"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Team Size",
+              "displayName": "Team Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Just me",
+                  "value": "Just me"
+                },
+                {
+                  "name": "2-5",
+                  "value": "2-5"
+                },
+                {
+                  "name": "6-20",
+                  "value": "6-20"
+                },
+                {
+                  "name": "21-50",
+                  "value": "21-50"
+                },
+                {
+                  "name": "50+",
+                  "value": "50+"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Timeline",
+              "displayName": "Start Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Immediately",
+                  "value": "Immediately"
+                },
+                {
+                  "name": "This month",
+                  "value": "This month"
+                },
+                {
+                  "name": "In 1-3 months",
+                  "value": "In 1-3 months"
+                },
+                {
+                  "name": "Just researching",
+                  "value": "Just researching"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Partnership Type",
+              "displayName": "Partnership Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Co-marketing",
+                  "value": "Co-marketing"
+                },
+                {
+                  "name": "Affiliate",
+                  "value": "Affiliate"
+                },
+                {
+                  "name": "Sponsorship",
+                  "value": "Sponsorship"
+                },
+                {
+                  "name": "Integration",
+                  "value": "Integration"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Issue Type",
+              "displayName": "Issue Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Billing",
+                  "value": "Billing"
+                },
+                {
+                  "name": "Technical issue",
+                  "value": "Technical issue"
+                },
+                {
+                  "name": "Account access",
+                  "value": "Account access"
+                },
+                {
+                  "name": "Feature request",
+                  "value": "Feature request"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Demo Details",
+              "displayName": "Demo Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Current Tool or Workflow",
+              "displayName": "Current Tool or Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Biggest Pain Point",
+              "displayName": "Biggest Pain Point",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Preferred Demo Date or Time",
+              "displayName": "Preferred Demo Date or Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Pricing Details",
+              "displayName": "Pricing Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Brand / Audience / Company Details",
+              "displayName": "Brand / Audience / Company Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Partnership Goal",
+              "displayName": "Partnership Goal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Partnership Timeline",
+              "displayName": "Partnership Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Relevant Link",
+              "displayName": "Relevant Link",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Support Issue Description",
+              "displayName": "Support Issue Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fastest Reach Method",
+              "displayName": "Fastest Reach Method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Project Description",
+              "displayName": "Project Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Features or Outcome Needed",
+              "displayName": "Features or Outcome Needed",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Expected Project Timeline",
+              "displayName": "Expected Project Timeline",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reference Links or Examples",
+              "displayName": "Reference Links or Examples",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Anything Else We Should Know",
+              "displayName": "Anything Else We Should Know",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Submission Date",
+              "displayName": "Submission Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Intent",
+              "displayName": "AI Intent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Urgency",
+              "displayName": "AI Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Keywords",
+              "displayName": "AI Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "High",
+                  "value": "High"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "Low",
+                  "value": "Low"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Suggested Reply",
+              "displayName": "Suggested Reply",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Next Action",
+              "displayName": "Next Action",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email Draft Status",
+              "displayName": "Email Draft Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Not Started",
+                  "value": "Not Started"
+                },
+                {
+                  "name": "Drafted",
+                  "value": "Drafted"
+                },
+                {
+                  "name": "Approved",
+                  "value": "Approved"
+                },
+                {
+                  "name": "Sent",
+                  "value": "Sent"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Assigned To",
+              "displayName": "Assigned To",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Follow-up Date",
+              "displayName": "Follow-up Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Stage",
+              "displayName": "Lead Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "AI Reviewed",
+                  "value": "AI Reviewed"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Closed Won",
+                  "value": "Closed Won"
+                },
+                {
+                  "name": "Closed Lost",
+                  "value": "Closed Lost"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notified Team",
+              "displayName": "Notified Team",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Activity",
+              "displayName": "Last Activity",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Notes",
+              "displayName": "Lead Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Outbound Channel",
+              "displayName": "Outbound Channel",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "Phone",
+                  "value": "Phone"
+                },
+                {
+                  "name": "LinkedIn",
+                  "value": "LinkedIn"
+                },
+                {
+                  "name": "WhatsApp",
+                  "value": "WhatsApp"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Typeform",
+                  "value": "Typeform"
+                },
+                {
+                  "name": "Web",
+                  "value": "Web"
+                },
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "LinkedIn",
+                  "value": "LinkedIn"
+                },
+                {
+                  "name": "Phone",
+                  "value": "Phone"
+                },
+                {
+                  "name": "Manual",
+                  "value": "Manual"
+                },
+                {
+                  "name": "Event",
+                  "value": "Event"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Reply Draft",
+              "displayName": "Customer Reply Draft",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Reply Subject",
+              "displayName": "Customer Reply Subject",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Portal Link",
+              "displayName": "Customer Portal Link",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tracking ID",
+              "displayName": "Tracking ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Status",
+              "displayName": "Customer Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Received Under Review In Discussion Proposal Sent In Progress Completed Closed",
+                  "value": "Received Under Review In Discussion Proposal Sent In Progress Completed Closed"
+                },
+                {
+                  "name": "Under Review",
+                  "value": "Under Review"
+                },
+                {
+                  "name": "In Discussion ",
+                  "value": "In Discussion "
+                },
+                {
+                  "name": "Proposal  Sent ",
+                  "value": "Proposal  Sent "
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed ",
+                  "value": "Completed "
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Customer Visible Update",
+              "displayName": "Customer Visible Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Shared Update",
+              "displayName": "Last Shared Update",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        48
+      ],
+      "id": "a33365fb-396f-431c-8f44-c757b4041f8c",
+      "name": "Update record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "l1hQKQF6WdLmWpvS",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "e25b070612@adypu.edu.in",
+        "subject": "=🔥 High-Priority Lead: {{ $('Airtable Trigger').item.json.fields['Full Name'] || 'New Lead' }}",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>High-Priority Lead</title>\n</head>\n<body style=\"margin:0;padding:0;background:#f6f8fb;font-family:Arial,Helvetica,sans-serif;color:#1f2937;\">\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background:#f6f8fb;padding:24px 0;\">\n    <tr>\n      <td align=\"center\">\n        <table width=\"680\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:680px;max-width:680px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;\">\n          \n          <tr>\n            <td style=\"background:#111827;padding:24px 32px;\">\n              <div style=\"font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;font-weight:700;\">SmartLead AI</div>\n              <div style=\"font-size:28px;line-height:1.2;font-weight:700;color:#ffffff;margin-top:8px;\">🔥 High-Priority Lead Detected</div>\n              <div style=\"font-size:14px;color:#d1d5db;margin-top:8px;\">A new qualified inquiry has been captured and analyzed.</div>\n            </td>\n          </tr>\n\n          <tr>\n            <td style=\"padding:28px 32px 10px 32px;\">\n              <div style=\"font-size:18px;font-weight:700;color:#111827;margin-bottom:14px;\">Lead Overview</div>\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\">\n                <tr>\n                  <td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;width:210px;\">Full Name</td>\n                  <td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">{{ $('Airtable Trigger').item.json.fields['Full Name'] || '-' }}</td>\n                </tr>\n                <tr>\n                  <td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">Email</td>\n                  <td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">{{ $('Airtable Trigger').item.json.fields['Email'] || '-' }}</td>\n                </tr>\n                {{ $('Airtable Trigger').item.json.fields['Phone'] ? `<tr><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">Phone</td><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">${$('Airtable Trigger').item.json.fields['Phone']}</td></tr>` : '' }}\n                {{ $('Airtable Trigger').item.json.fields['Company'] ? `<tr><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">Company</td><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">${$('Airtable Trigger').item.json.fields['Company']}</td></tr>` : '' }}\n                {{ $('Airtable Trigger').item.json.fields['Preferred Contact Method'] ? `<tr><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">Preferred Contact Method</td><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">${$('Airtable Trigger').item.json.fields['Preferred Contact Method']}</td></tr>` : '' }}\n                {{ $('Airtable Trigger').item.json.fields['Inquiry Type'] ? `<tr><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">Inquiry Type</td><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">${$('Airtable Trigger').item.json.fields['Inquiry Type']}</td></tr>` : '' }}\n                {{ $('Code in JavaScript1').item.json.lead_score ? `<tr><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">Lead Score</td><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">${$('Code in JavaScript1').item.json.lead_score}</td></tr>` : '' }}\n                {{ $('Code in JavaScript1').item.json.priority ? `<tr><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">Priority</td><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">${$('Code in JavaScript1').item.json.priority}</td></tr>` : '' }}\n                {{ $('Code in JavaScript1').item.json.ai_urgency ? `<tr><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#374151;\">AI Urgency</td><td style=\"padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;\">${$('Code in JavaScript1').item.json.ai_urgency}</td></tr>` : '' }}\n              </table>\n            </td>\n          </tr>\n\n          <tr>\n            <td style=\"padding:8px 32px 0 32px;\">\n              <div style=\"font-size:18px;font-weight:700;color:#111827;margin-bottom:14px;\">Form Details</div>\n\n              {{ $('Airtable Trigger').item.json.fields['Budget Range'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Budget Range</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Budget Range']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Urgency Selected'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Urgency Selected</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Urgency Selected']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Existing Customer'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Existing Customer</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Existing Customer']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Team Size'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Team Size</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Team Size']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Start Timeline'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Start Timeline</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Start Timeline']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Partnership Type'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Partnership Type</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Partnership Type']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Issue Type'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Issue Type</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Issue Type']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Demo Details'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Demo Details</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Demo Details']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Current Tool or Workflow'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Current Tool or Workflow</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Current Tool or Workflow']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Biggest Pain Point'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Biggest Pain Point</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Biggest Pain Point']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Preferred Demo Date or Time'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Preferred Demo Date or Time</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Preferred Demo Date or Time']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Pricing Details'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Pricing Details</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Pricing Details']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Brand / Audience / Company Details'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Brand / Audience / Company Details</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Brand / Audience / Company Details']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Partnership Goal'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Partnership Goal</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Partnership Goal']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Partnership Timeline'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Partnership Timeline</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Partnership Timeline']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Relevant Link'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Relevant Link</div><div style=\"font-size:14px;line-height:1.6;\"><a href=\"${$('Airtable Trigger').item.json.fields['Relevant Link']}\" style=\"color:#2563eb;text-decoration:none;\">${$('Airtable Trigger').item.json.fields['Relevant Link']}</a></div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Support Issue Description'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Support Issue Description</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Support Issue Description']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Fastest Reach Method'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Fastest Reach Method</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Fastest Reach Method']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Project Description'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Project Description</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Project Description']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Features or Outcome Needed'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Features or Outcome Needed</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Features or Outcome Needed']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Expected Project Timeline'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Expected Project Timeline</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;\">${$('Airtable Trigger').item.json.fields['Expected Project Timeline']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Reference Links or Examples'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Reference Links or Examples</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Reference Links or Examples']}</div></div>` : '' }}\n\n              {{ $('Airtable Trigger').item.json.fields['Anything Else We Should Know'] ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Anything Else We Should Know</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Airtable Trigger').item.json.fields['Anything Else We Should Know']}</div></div>` : '' }}\n            </td>\n          </tr>\n\n          <tr>\n            <td style=\"padding:8px 32px 24px 32px;\">\n              <div style=\"font-size:18px;font-weight:700;color:#111827;margin-bottom:14px;\">AI Analysis</div>\n\n              {{ $('Code in JavaScript1').item.json.ai_summary ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">AI Summary</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Code in JavaScript1').item.json.ai_summary}</div></div>` : '' }}\n\n              {{ $('Code in JavaScript1').item.json.ai_intent ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">AI Intent</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;\">${$('Code in JavaScript1').item.json.ai_intent}</div></div>` : '' }}\n\n              {{ $('Code in JavaScript1').item.json.ai_keywords ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">AI Keywords</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;\">${$('Code in JavaScript1').item.json.ai_keywords}</div></div>` : '' }}\n\n              {{ $('Code in JavaScript1').item.json.suggested_reply ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Suggested Reply</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Code in JavaScript1').item.json.suggested_reply}</div></div>` : '' }}\n\n              {{ $('Code in JavaScript1').item.json.next_action ? `<div style=\"margin-bottom:14px;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Next Action</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Code in JavaScript1').item.json.next_action}</div></div>` : '' }}\n\n              {{ $('Code in JavaScript1').item.json.message ? `<div style=\"margin-bottom:0;\"><div style=\"font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;\">Message Summary</div><div style=\"font-size:14px;line-height:1.6;color:#111827;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;white-space:pre-wrap;\">${$('Code in JavaScript1').item.json.message}</div></div>` : '' }}\n            </td>\n          </tr>\n\n          <tr>\n            <td style=\"padding:18px 32px;background:#f9fafb;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;\">\n              This alert was generated automatically by your lead automation workflow.\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1952,
+        -256
+      ],
+      "id": "cdb01470-e24a-4003-8169-f7427dc81b14",
+      "name": "Send a message",
+      "webhookId": "02a44df3-d0aa-4e07-bfc5-ecbbd94c4b4b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cJkxDUVvv1HWpZYY",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "subject": "={{ $json.fields['Customer Reply Subject'] }}",
+        "message": "={{ $json.fields['Customer Reply Draft'] }}",
+        "options": {
+          "senderName": "SmartLead AI Team"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        -240
+      ],
+      "id": "7e89b617-6336-40de-92a0-4ce3bda4f7f4",
+      "name": "send reply",
+      "webhookId": "4aad1024-73b1-4156-b0e7-0aa76f80377c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cJkxDUVvv1HWpZYY",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "subject": "={{ $json.fields['Customer Reply Subject'] }}",
+        "message": "={{ $json.fields['Customer Reply Draft'] }}",
+        "options": {
+          "senderName": "SmartLead AI Team"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1952,
+        144
+      ],
+      "id": "c5b9e0c2-0aa6-49e5-aeb5-a3d0698303be",
+      "name": "customer msg 2",
+      "webhookId": "4aad1024-73b1-4156-b0e7-0aa76f80377c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cJkxDUVvv1HWpZYY",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Airtable Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "send reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update record1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record1": {
+      "main": [
+        [
+          {
+            "node": "customer msg 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send reply": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ea919f32-80c6-44dc-8a5e-b68146b6c07b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "305ded626e4eadc7dae6add7174d897a90a9dda76f77578f672e79d0b3969fbb"
+  },
+  "id": "wFW8pln5lMxXJL4o",
+  "tags": []
+}
